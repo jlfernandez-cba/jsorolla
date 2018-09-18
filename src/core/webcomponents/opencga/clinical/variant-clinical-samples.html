@@ -96,30 +96,37 @@
         </div>
 
         <!-- Modal dialog for Family Editor-->
-        <div class="modal fade" id="{{prefix}}FamilyEditor" tabindex="-1" role="dialog"
-             aria-labelledby="familyEditorLabel">
-            <div class="modal-dialog modal-sm" role="document" style="width: 1300px;">
+        <div
+                class="modal fade"
+                id="{{prefix}}FamilyEditor"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="familyEditorLabel">
+            <div class="modal-dialog modal-sm" role="document" style="width:90%">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                         <h4 class="modal-title" id="{{prefix}}FamilyEditorLabel">Family Editor</h4>
                     </div>
-                    <div class="modal-body" style="height: 500px">
-                        <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
-
-                            <opencga-family-editor-new opencga-session="{{opencgaSession}}" samples="{{_samplesAnalysis}}"
-                                                       opencga-client="{{opencgaClient}}" family="{{family}}"
-                                                       on-familychange="familyChange" message-error-family="{{messageErrorFamily}}">
-                            </opencga-family-editor-new>
-                        </template>
+                    <div class="modal-body">
+                        <div class="row">
+                            <template is="dom-if" if="{{showModalFamilyEditor}}" restamp="true">
+                                <opencga-family-editor-new
+                                        opencga-session="{{opencgaSession}}"
+                                        opencga-client="{{opencgaClient}}"
+                                        samples="{{_samplesAnalysis}}"
+                                        family="{{family}}"
+                                        on-familychange="familyChange"
+                                        message-error-family="{{messageErrorFamily}}">
+                                </opencga-family-editor-new>
+                            </template>
+                        </div>
                     </div>
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel
-                        </button>
-                        <button type="button" class="btn btn-primary" on-click="checkFamily">OK
-                        </button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" on-click="checkFamily">OK</button>
                     </div>
                 </div>
             </div>
@@ -144,8 +151,10 @@
             </div>
         </div>
 
-        <opencga-message-dialog opencga-client="{{opencgaClient}}" show-message-modal="{{showMessageModal}}"
-                                settings-message-modal="{{settingsMessageModal}}">
+        <opencga-message-dialog
+                opencga-client="{{opencgaClient}}"
+                show-message-modal="{{showMessageModal}}"
+                settings-message-modal="{{settingsMessageModal}}">
         </opencga-message-dialog>
     </template>
 
@@ -164,7 +173,8 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
+                        observer: "clear"
                     },
                     opencgaClient: {
                         type: Object,
@@ -208,6 +218,9 @@
                 }
             }
 
+            _attachDom(dom) {
+                this.appendChild(dom);
+            }
 
             _init() {
                 this.prefix = "sample" + Utils.randomString(6);
@@ -218,13 +231,9 @@
                     paginationSwitchUp: 'fa-caret-square-o-up'
                 };
             }
-            _attachDom(dom) {
-                this.appendChild(dom);
-            }
 
-            ready() {
-                super.ready();
-
+            clear() {
+                this._analysis = [];
                 this._numAnalysisSelected = 0;
                 this.analysisChanged = 0;
                 this.currentAnalysis = {};
@@ -232,6 +241,11 @@
                 this.unsavedAnalysis = 0;
                 this.messageError = false;
                 this.fixedFilters = ["studies"];
+            }
+
+            ready() {
+                super.ready();
+                this.clear();
             }
 
             static get observers() {
@@ -554,26 +568,23 @@
                         }
 
                         // When analysis type != SINGLE Or AUTO
-                        let membersWithParents = null;
-                        let bodyFamily = null;
-                        if (UtilsNew.isNotUndefinedOrNull(rowInfo.family)) {
-                            bodyFamily = Object.assign({}, rowInfo.family);
-                            let membersNew = [];
+                        const bodyFamily = UtilsNew.isNotUndefinedOrNull(rowInfo.family)
+                            ? Object.assign({}, rowInfo.family, {members: Object.keys(rowInfo.family.members).map(key => {
+                                const member = Object.assign({}, rowInfo.family.members[key]);
+                                if (!!member.id)   delete member.id;
+                                if (!!member.father)    member.father = member.father.name;
+                                if (!!member.mother)    member.mother = member.mother.name;
+                                return member;
+                            })})
+                            : null;
 
-                            bodyFamily.members.forEach((member) => {
-                                let newMember = Object.assign(member);
-                                membersNew.push(member);
-                            });
-                            bodyFamily.members = membersNew;
-                            // Get members with parents in the current analysis
-                            membersWithParents = bodyFamily.members.filter((member) => {
-                                return UtilsNew.isNotUndefinedOrNull(member.father) || UtilsNew.isNotUndefinedOrNull(member.mother);
-                            });
-                        }
+                        const membersWithParents = bodyFamily.members.filter(member => (
+                            UtilsNew.isNotUndefinedOrNull(member.father) || UtilsNew.isNotUndefinedOrNull(member.mother)
+                        ));
 
                         let individualPromises = [];
                         let checkPromises = [];
-                        let _this = this;
+                        const _this = this;
                         let subjectName = "";
                         let samplesName = [];
                         let diseaseAnalysis = [];
@@ -665,8 +676,8 @@
                                             _this.opencgaClient.individuals().info(individualToUpdate.name, params, {"method": "GET"})
                                                 .then(function (response) {
                                                     if (response.response[0].numResults >= 1) {
-                                                        let individual = response.response[0].result[0];
-                                                        let individualId = individual.id;
+                                                        const individual = response.response[0].result[0];
+                                                        const individualId = individual.id;
 
                                                         // Check if individual has father or mother already. If individual does not have, we will allow create family.
                                                         if (((UtilsNew.isUndefinedOrNull(individual.father) ||
@@ -971,6 +982,12 @@
                     checkFamilyValidate = false;
                     messageErrorFamily.push("Members are required.");
                 }
+
+                // new: check that there are no cycles
+                console.log("> debug: family");
+                console.dir(family);
+                console.dir(samples);
+                // checkFamilyValidate = false;
 
                 if (checkFamilyValidate) {
                     // We have to do this before updateRow to get the last selectedValue in member select. Instead we will get the first value of the all options

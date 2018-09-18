@@ -180,7 +180,7 @@
                     },
                     family: {
                         type: Object,
-                        observer: "familyObserver"
+                        // observer: "familyObserver"
                     },
                     opencgaClient: {
                         type: Object
@@ -335,29 +335,30 @@
             // }
 
 
-            _autocompleteSampleSearch(e) {
-                // Only gene symbols are going to be searched and not Ensembl IDs
-                let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
-                if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
-                    let _this = this;
-                    this.opencgaClient.samples()
-                        .search({
-                            study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-                            name: "~^" + sampleNamePrefix,
-                            include: "id,name,source",
-                            includeIndividual: true,
-                            limit: 20}, {})
-                        .then(function (response) {
-//                            _this.autocompleteSampleData = response.response[0].result;
-                            let options = "";
-                            for (let sample of response.response[0].result) {
-                                let sampleStr = JSON.stringify(sample);
-                                options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
-                            }
-                            PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
-                        });
-                }
-            }
+            // removed for 20180924 course
+//             _autocompleteSampleSearch(e) {
+//                 // Only gene symbols are going to be searched and not Ensembl IDs
+//                 let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
+//                 if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
+//                     let _this = this;
+//                     this.opencgaClient.samples()
+//                         .search({
+//                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
+//                             name: "~^" + sampleNamePrefix,
+//                             include: "id,name,source",
+//                             includeIndividual: true,
+//                             limit: 20}, {})
+//                         .then(function (response) {
+// //                            _this.autocompleteSampleData = response.response[0].result;
+//                             let options = "";
+//                             for (let sample of response.response[0].result) {
+//                                 let sampleStr = JSON.stringify(sample);
+//                                 options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
+//                             }
+//                             PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
+//                         });
+//                 }
+//             }
 
             onSampleChange(e) {
                     let sampleSearchInput = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
@@ -1152,7 +1153,8 @@
                 if (UtilsNew.isNotEmptyArray(samples)) {  // this.query.samples !== undefined && this.query.samples.length > 0
                     // this.showSampleGenotypes = true;
                     PolymerUtils.setAttribute(this.prefix + "SampleGenotypeDivTable", "style", "display: inline");
-                    PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
+                    // removed for 20180924 course
+                    // PolymerUtils.setAttribute(this.prefix + "SampleGenotypeOptions", "style", "display: inline");
                     // If there is more than one sample we make visible the Segregation dropdown
                     if (samples.length > 0) {
                         PolymerUtils.setAttribute(this.prefix + "SampleSegregation", "style", "display: inline");
@@ -1350,7 +1352,9 @@
                     // approxCountCheckbox = `<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" checked> Approximate Count<br>`;
                     approxCountCheckbox = '<input id="${prefix}ApproxCountCheckbox" type="checkbox" value="approximateCount" class="${prefix}FilterCheckBox" style="display: none;" checked> Approximate Count<br>';
                 }
-                return `
+
+                // removed from next piece of code for 20180924 course
+                /*
                     <div id="${prefix}AutocompleteSampleSelect" style="margin: 15px 0px">
                         <span>Select Sample:</span>
 
@@ -1367,6 +1371,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- remaining code -->
+
+                    <div id="${prefix}SampleGenotypeOptions" style="display: inline">
+                        <span>Sample Genotypes Query Options</span>
+                        <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
+                            ${approxCountCheckbox}
+                            <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
+                        </div>
+                    </div>
+                */
+                return `
                     <div style="margin: 15px 0px">
                         <span>Select Sample Genotypes:</span>
                         <div id="${prefix}SampleGenotypeMessage">
@@ -1393,14 +1409,6 @@
                                     </thead>
                                     <tbody></tbody>
                                 </table>
-                            </div>
-                        </div>
-
-                        <div id="${prefix}SampleGenotypeOptions" style="display: inline">
-                            <span>Sample Genotypes Query Options</span>
-                            <div id="${prefix}GenotypeQueryOptions" style="padding-left: 10px;padding-top: 5px">
-                                ${approxCountCheckbox}
-                                <input type="checkbox" value="multiAllelic" class="${prefix}FilterCheckBox"> Select all multi-allelic variants<br>
                             </div>
                         </div>
                     </div>`
@@ -1932,12 +1940,13 @@
                     }
                 }
 
+                // removed for 20180924 course
                 // Add events for Sample IDs
-                let autoCompleteSampleElement = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
-                if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
-                    autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
-                    PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
-                }
+                // let autoCompleteSampleElement = PolymerUtils.getElementById(this.prefix + "AutocompleteSampleSearchInput");
+                // if (UtilsNew.isNotUndefinedOrNull(autoCompleteSampleElement)) {
+                //     autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
+                //     PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
+                // }
                 // Add event for inheritanceMode
                 let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
                 if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {

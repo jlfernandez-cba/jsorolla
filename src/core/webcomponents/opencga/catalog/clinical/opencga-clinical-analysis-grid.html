@@ -19,6 +19,9 @@
 <dom-module id="opencga-clinical-analysis-grid">
     <template>
         <style include="jso-styles"></style>
+        <div>
+            Session: {{opencgaSession.project}}
+        </div>
 
         <span>Showing <label>{{from}}-{{to}}</label> of <label>{{numTotalResultsText}}</label> analysis</span>
         <table id="{{prefix}}tableAnalysis"
@@ -45,7 +48,7 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
                     },
                     opencgaClient: {
                         type: Object
@@ -62,6 +65,12 @@
                         observer: "analysisObserver"
                     }
                 }
+            }
+
+            static get observers() {
+                return [
+                    'renderTable(opencgaSession.*)',
+                ];
             }
 
             _attachDom(dom) {
@@ -101,6 +110,8 @@
             }
 
             renderTable() {
+                console.log("opencga-client-analysis-grid.renderTable");
+
                 let _config = Object.assign(this.defaultConfig, this.config);
 
                 this.from = 1;
@@ -131,6 +142,9 @@
                         return queryParams;
                     },
                     responseHandler: function (resp) {
+                        console.log('opencga-clinical-analysis-grid.responseHandler');
+                        console.dir(resp);
+
                         if (_numTotal === -1) {
                             _numTotal = resp.response[0].numTotalResults;
                         }
@@ -139,6 +153,8 @@
                         return {total: _numTotal, rows: resp.response[0].result}
                     },
                     onLoadSuccess: function (data) {
+                        console.log('opencga-clinical-analysis-grid.onLoadSuccess');
+                        console.dir(data);
                         if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
                             // The first time we mark as selected the first row
                             let _table = $('#' + _this.prefix + 'tableAnalysis');

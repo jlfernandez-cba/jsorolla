@@ -52,7 +52,7 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
                     },
                     opencgaClient: {
                         type: Object
@@ -63,7 +63,6 @@
                     },
                     analysisModal: {
                         type: Boolean,
-                        observer: "loadData"
                     },
                     query:{
                         type: Object,
