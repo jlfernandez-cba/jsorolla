@@ -183,7 +183,7 @@
 
                 <!-- INTERPRETATION TAB -->
                 <!-- analysisSelected -->
-                <template is="dom-if" if="{{activesTab.prioritizationTab}}">
+                <template is="dom-if" if="{{activesTab.prioritizationTab}}" restamp="true">
                     <opencga-variant-clinical-interpretation
                             opencga-session="{{opencgaSession}}"
                             opencga-client="{{opencgaClient}}"
@@ -202,7 +202,7 @@
                 </template>
 
                 <!-- REPORT TAB -->
-                <template is="dom-if" if="{{activesTab.reportTab}}">
+                <template is="dom-if" if="{{activesTab.reportTab}}" restamp="true">
                     <template is="dom-if" if="{{!activeReport}}">
                         <div class="col-md-offset-1 col-md-10 ">
                             <div class="analysis-content" id="{{prefix}}ReportButtonDiv">
@@ -336,16 +336,6 @@
                     },
                     proteinSubstitutionScores: {
                         type: Object
-                    },
-                    query: {
-                        type: Object
-                    },
-                    search: {
-                        type: Object
-                    },
-                    analysisSelected: {
-                        type: Object,
-                        observer: "analysisSelectedObserver"
                     },
                     clinicalAnalysis: {
                         type: Object,
@@ -496,11 +486,6 @@
                 return !isActive ? "btn-success" : "btn-primary";
             }
 
-            onClear() {
-                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
-                this.search = {};
-            }
-
             showClinicalSelector(e) {
                 e.preventDefault();
                 this.analysisModal = UtilsNew.isUndefined(this.analysisModal) ? true : !this.analysisModal;
@@ -515,56 +500,6 @@
                 this.clinicalAnalysisId = this.clinicalAnalysis.id;
 
                 this.checkTypeAnalysisSelected(this.clinicalAnalysis);
-            }
-
-            onAnalysisSelected(e) {
-                e.preventDefault(); // prevents the hash change to "#" and allows to manipulate the hash fragment as needed
-                this.clinicalAnalysis = this.analysisSelected;
-                this.clinicalAnalysisId = this.analysisSelected.id;
-                this.showLastRecent = false;
-                this.showLastRecentInterpretation = false;
-                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
-            }
-
-            analysisSelectedObserver() {
-                this.clinicalAnalysis = null;
-                this.clinicalAnalysisId = null;
-            }
-
-            selectAnalysisMode(e) {
-                this.interactive = e.target.value === "interactive";
-                this.checkTypeAnalysisSelected(this.clinicalAnalysis);
-            }
-            onClickOkPrioritization() {
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-
-                    if (!this.interactive && UtilsNew.isUndefinedOrNull(this.diseasePanelId)) {
-                        let _message = "You must select a panel to continue.";
-
-                        this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                            detail: {
-                                message: _message,
-                                type: UtilsNew.MESSAGE_INFO
-                            },
-                            bubbles: true,
-                            composed: true
-                        }));
-                    } else {
-                        this.activePrioritization = true;
-                        $('select.selectpicker').selectpicker('render');
-                    }
-                } else {
-                    let _message = "You must select an analysis to continue.";
-
-                    this.dispatchEvent(new CustomEvent(this.eventNotifyName, {
-                        detail: {
-                            message: _message,
-                            type: UtilsNew.MESSAGE_INFO
-                        },
-                        bubbles: true,
-                        composed: true
-                    }));
-                }
             }
 
             getRecentInterpretations() {
@@ -626,7 +561,6 @@
             clearSelectedAnalysis(){
                 this.showLastRecent = true;
                 this.showLastRecentInterpretation = true;
-                this.analysisSelectedObserver();
             }
 
             onDiseasePanelChange(e) {
@@ -661,13 +595,14 @@
             }
 
             onOpencgaSessionChange(newValue, oldValue) {
-                if ((!!newValue && !oldValue) || (!newValue && !!oldValue) || (newValue.user !== oldValue.user))
-                {
-                    this.samples = [];
-                    this.analysisSelected = null;
-                    this.clinicalAnalysis = null;
-                    this.showMessageModal = false;
-                }
+            //     console.log(">>> onOpencgaSessionChange()");
+            //     console.dir(newValue);
+            //     if ((!!newValue && !oldValue) || (!newValue && !!oldValue) || (newValue.user !== oldValue.user))
+            //     {
+            //         this.samples = [];
+            //         this.clinicalAnalysis = null;
+            //         this.showMessageModal = false;
+            //     }
             }
         }
 

@@ -213,7 +213,8 @@
             static get properties() {
                 return {
                     opencgaSession: {
-                        type: Object
+                        type: Object,
+                        observer: 'onOpenCgaSessionChanged',
                     },
                     opencgaClient: {
                         type: Object
@@ -245,7 +246,6 @@
                     },
                     clinicalAnalysis: {
                         type: Object,
-                        observer: "getRecentInterpretations"
                     },
                     eventNotifyName: {
                         type: String,
@@ -269,7 +269,6 @@
                 this.prefix = "clinical-analysis-view-" + Utils.randomString(6);
 
                 this.activePrioritization = false;
-                this.checkExistsRecentInterpretations = false;
                 this.checkExistsRecentAnalysis = false;
 
                 this.interactive = false;
@@ -357,17 +356,6 @@
                 }
             }
 
-            getRecentInterpretations() {
-                if (UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysis)) {
-                    this.recentInterpretations = this.clinicalAnalysis.interpretations;
-                    this.interpretationId = null;
-                    if (UtilsNew.isNotUndefinedOrNull(this.recentInterpretations) && UtilsNew.isNotEmptyArray(this.recentInterpretations)){
-                        this.interpretationId = this.clinicalAnalysis.interpretations[0].id;
-                    }
-                    this.checkExistsRecentInterpretations = !UtilsNew.isEmptyArray(this.recentInterpretations);
-                }
-            }
-
             // just to overcome polymer limitations; should be static
             // check if algorithm id is 'automatic'
             isAutomaticMode(mode) {
@@ -423,6 +411,15 @@
                 this.analysisSelectedObserver();
             }
 
+            onOpenCgaSessionChanged(newValue, oldValue) {
+                // const newUser = !!newValue && !!newValue.user && newValue.user.id;
+                // const oldUser = !!oldValue && !!oldValue.user && oldValue.user.id;
+                // if (oldUser !== newUser) {
+                //     console.log(`opencga-variant-clinical-interpretation.onOpenCgaSessionChanged(${oldUser}, ${newUser})`);
+                //     this.clearSelectedAnalysis();
+                //     this.activePrioritization = false;
+                // }
+            }
         }
 
         customElements.define(OpencgaVariantClinicalInterpretation.is, OpencgaVariantClinicalInterpretation);

@@ -259,7 +259,7 @@
                 this._summaryCollapsed = !this._summaryCollapsed;
             }
 
-            searchAnalysis(){
+            searchAnalysis() {
                 if(UtilsNew.isNotUndefinedOrNull(this.clinicalAnalysisId)) {
                     let params = {
                         study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias

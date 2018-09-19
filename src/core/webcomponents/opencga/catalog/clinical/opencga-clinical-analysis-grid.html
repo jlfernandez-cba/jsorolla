@@ -142,9 +142,6 @@
                         return queryParams;
                     },
                     responseHandler: function (resp) {
-                        console.log('opencga-clinical-analysis-grid.responseHandler');
-                        console.dir(resp);
-
                         if (_numTotal === -1) {
                             _numTotal = resp.response[0].numTotalResults;
                         }
@@ -153,8 +150,6 @@
                         return {total: _numTotal, rows: resp.response[0].result}
                     },
                     onLoadSuccess: function (data) {
-                        console.log('opencga-clinical-analysis-grid.onLoadSuccess');
-                        console.dir(data);
                         if (UtilsNew.isUndefinedOrNull(_this.analysis)) {
                             // The first time we mark as selected the first row
                             let _table = $('#' + _this.prefix + 'tableAnalysis');
