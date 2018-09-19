@@ -111,15 +111,15 @@
             <div class="col-md-12">
                 <table class="table hover">
                     <thead>
-                    <tr class="active">
-                        <th>Sample ID</th>
-                        <th>Father</th>
-                        <th>Mother</th>
-                        <th>Phenotypes</th>
-                        <th>Deceased</th>
-                        <th>Parental Consanguinity</th>
-                        <th>Sex</th>
-                    </tr>
+                        <tr class="active">
+                            <th>Sample ID</th>
+                            <th>Father</th>
+                            <th>Mother</th>
+                            <th>Phenotypes</th>
+                            <th>Deceased</th>
+                            <th>Parental Consanguinity</th>
+                            <th>Sex</th>
+                        </tr>
                     </thead>
 
                     <tbody>
@@ -526,9 +526,6 @@
                 if (UtilsNew.isNotUndefinedOrNull(PolymerUtils.getElementById("samplesTable"))) {
                     PolymerUtils.getElementById("samplesTable").render();
                 }
-
-                console.log(">> samples:");
-                console.dir(this.samples);
             }
 
             _changeName(e) {
@@ -735,8 +732,7 @@
             }
 
             onFamilyChange() {
-                console.log(">> family:");
-                console.dir(this.family);
+                // TODO
             }
         }
 

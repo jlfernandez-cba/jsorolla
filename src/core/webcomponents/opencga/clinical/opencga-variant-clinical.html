@@ -595,14 +595,9 @@
             }
 
             onOpencgaSessionChange(newValue, oldValue) {
-            //     console.log(">>> onOpencgaSessionChange()");
-            //     console.dir(newValue);
-            //     if ((!!newValue && !oldValue) || (!newValue && !!oldValue) || (newValue.user !== oldValue.user))
-            //     {
-            //         this.samples = [];
-            //         this.clinicalAnalysis = null;
-            //         this.showMessageModal = false;
-            //     }
+                // TODO: in order to fix performance by not reloading the component
+                // we should make this component and its children smart enough to clear
+                // their data; currently they are not
             }
         }
 

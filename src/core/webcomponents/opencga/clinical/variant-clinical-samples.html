@@ -983,12 +983,6 @@
                     messageErrorFamily.push("Members are required.");
                 }
 
-                // new: check that there are no cycles
-                console.log("> debug: family");
-                console.dir(family);
-                console.dir(samples);
-                // checkFamilyValidate = false;
-
                 if (checkFamilyValidate) {
                     // We have to do this before updateRow to get the last selectedValue in member select. Instead we will get the first value of the all options
                     let subjectSelected = PolymerUtils.getValue(this.prefix + "selectedSubject" + this.currentAnalysis.analysisIDinternal);
