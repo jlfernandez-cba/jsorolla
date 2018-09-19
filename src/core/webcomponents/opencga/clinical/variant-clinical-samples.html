@@ -44,20 +44,20 @@
                 <h3>Analysis Type</h3>
                 <div id="{{prefix}}toolbar">
                     <div class="btn-group btn-group-sm">
-                        <button id="singleButton" class="button" on-click="addAnalysis">
-                            <img src="[[importPath]]images/analysis_single_button.png" height="60">
+                        <button id="singleButton" class="button" on-click="addAnalysis" disabled="{{!isAnalysisTypeEnabled(samples.length, 1)}}">
+                            <img src="[[importPath]]images/analysis_single_button.png" height="60" style$="{{getAnalysisTypeButtonStyle(samples.length, 1)}}">
                         </button>
-                        <button id="duoButton" class="button" on-click="addAnalysis">
-                            <img src="[[importPath]]images/analysis_duo_button.png" height="60">
+                        <button id="duoButton" class="button" on-click="addAnalysis" disabled="{{!isAnalysisTypeEnabled(samples.length, 2)}}">
+                            <img src="[[importPath]]images/analysis_duo_button.png" height="60" style$="{{getAnalysisTypeButtonStyle(samples.length, 2)}}">
                         </button>
-                        <button id="trioButton" class="button" on-click="addAnalysis">
-                            <img src="[[importPath]]images/analysis_trio_button.png" height="60">
+                        <button id="trioButton" class="button" on-click="addAnalysis" disabled="{{!isAnalysisTypeEnabled(samples.length, 3)}}">
+                            <img src="[[importPath]]images/analysis_trio_button.png" height="60" style$="{{getAnalysisTypeButtonStyle(samples.length, 3)}}">
                         </button>
-                        <button id="familyButton" class="button" on-click="addAnalysis">
-                            <img src="[[importPath]]images/analysis_family_button.png" height="60">
+                        <button id="familyButton" class="button" on-click="addAnalysis" disabled="{{!isAnalysisTypeEnabled(samples.length, 4)}}">
+                            <img src="[[importPath]]images/analysis_family_button.png" height="60" style$="{{getAnalysisTypeButtonStyle(samples.length, 4)}}">
                         </button>
-                        <button id="autoButton" class="hidden button" on-click="addAnalysis">
-                            <img src="[[importPath]]images/analysis_auto_button.png" height="60">
+                        <button id="autoButton" class="hidden button" on-click="addAnalysis" disabled="{{!isAnalysisTypeEnabled(samples.length, 4, 'ge')}}">
+                            <img src="[[importPath]]images/analysis_auto_button.png" height="60" style$="{{getAnalysisTypeButtonStyle(samples.length, 4, 'ge')}}">
                         </button>
                     </div>
                 </div>
@@ -161,6 +161,23 @@
     <script>
         class VariantClinicalSamples extends Polymer.Element {
 
+            onSamplesChanged(newValue, oldValue) {
+                // TODO
+            }
+
+            isAnalysisTypeEnabled(actualCount, properCount, operator="eq") {
+                const op = !!operator ? operator : 'eq';
+                switch(op) {
+                    case 'ge':  return actualCount >= properCount;
+                    default:    return actualCount === properCount;
+                }
+            }
+
+            getAnalysisTypeButtonStyle(actualCount, properCount, operator) {
+                const res = this.isAnalysisTypeEnabled(actualCount, properCount, operator);
+                return res ? "" : "opacity: 0.4; filter: alpha(opacity=40);";
+            }
+
             constructor() {
                 super();
                 this._init();
@@ -182,7 +199,8 @@
                     },
                     samples: {
                         type: Array,
-                        notify: true
+                        notify: true,
+                        observer: 'onSamplesChanged',
                     },
                     prefix: {
                         type: String
@@ -233,6 +251,7 @@
             }
 
             clear() {
+                this.samples = [];
                 this._analysis = [];
                 this._numAnalysisSelected = 0;
                 this.analysisChanged = 0;
@@ -460,7 +479,7 @@
                     case "singleButton":
                         analysisType = "Single";
                         _properMembers = 1;
-                        _familyEditor = !UtilsNew.isNotUndefinedOrNull(this.samples[0].attributes.individual) && UtilsNew.isNotEmptyArray(this.samples[0].attributes.phenotypes);
+                        _familyEditor = !UtilsNew.isNotUndefinedOrNull(this.samples[0].individual) && UtilsNew.isNotEmptyArray(this.samples[0].phenotypes);
                         break;
                     case "autoButton":
                         analysisType = "Auto comparative";
@@ -535,6 +554,7 @@
             }
 
             saveAnalysis(rowInfo) {
+                const _this = this;
                 try {
                     if (this.opencgaClient instanceof OpenCGAClient) {
 
@@ -577,14 +597,12 @@
                                 return member;
                             })})
                             : null;
-
-                        const membersWithParents = bodyFamily.members.filter(member => (
+                        const membersWithParents = !!bodyFamily && bodyFamily.members.filter(member => (
                             UtilsNew.isNotUndefinedOrNull(member.father) || UtilsNew.isNotUndefinedOrNull(member.mother)
                         ));
 
                         let individualPromises = [];
                         let checkPromises = [];
-                        const _this = this;
                         let subjectName = "";
                         let samplesName = [];
                         let diseaseAnalysis = [];
@@ -740,9 +758,8 @@
                             });
                     }
                 } catch(err) {
-                        _this.messageError = true;
+                    _this.messageError = true;
                     _this.messageErrorText.push(err);
-//                        PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
                 }
             }
 

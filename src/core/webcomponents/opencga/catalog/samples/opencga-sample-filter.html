@@ -616,7 +616,6 @@
                 this.opencgaClient.studies().info(this.opencgaSession.study.id, {include: "variableSets"})
                     .then(function (response) {
                         _this.variableSets = response.response[0].result[0].variableSets;
-                        // debugger
                         if (_this.variableSets.length > 0) {
                             _this.variables = _this.variableSets[0].variables; // setting first one by default
                             _this.filteredVariables = {
