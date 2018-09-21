@@ -588,15 +588,8 @@
                         }
 
                         // When analysis type != SINGLE Or AUTO
-                        const bodyFamily = UtilsNew.isNotUndefinedOrNull(rowInfo.family)
-                            ? Object.assign({}, rowInfo.family, {members: Object.keys(rowInfo.family.members).map(key => {
-                                const member = Object.assign({}, rowInfo.family.members[key]);
-                                if (!!member.id)   delete member.id;
-                                if (!!member.father)    member.father = member.father.name;
-                                if (!!member.mother)    member.mother = member.mother.name;
-                                return member;
-                            })})
-                            : null;
+
+                        const bodyFamily = !!rowInfo.family ? Object.assign({}, rowInfo.family) : null;
                         const membersWithParents = !!bodyFamily && bodyFamily.members.filter(member => (
                             UtilsNew.isNotUndefinedOrNull(member.father) || UtilsNew.isNotUndefinedOrNull(member.mother)
                         ));
@@ -684,12 +677,44 @@
                             });
                         checkPromises.push(checkAnalysisName);
 
-
                         // Once all checkExistsName promise are resolved we try to create family
                         Promise.all(checkPromises)
                             .then(function (response) {
                                 if (checkExistsNames) {
-                                    if (UtilsNew.isNotUndefinedOrNull(membersWithParents) && membersWithParents.length > 0) {
+                                    if (!!membersWithParents && membersWithParents.length > 0) {
+
+                                        for (const individualToUpdate of bodyFamily.members) {
+                                            _this.opencgaClient.individuals().info(individualToUpdate.name, params, {"method": "GET"}).then(response => {
+                                                if (response.response[0].numResults >= 1) {
+                                                    const individual = response.response[0].result[0];
+                                                    const individualId = individual.id;
+
+                                                    // check if individual already has any parent; if not the case, we will allow create family.
+                                                    if (((UtilsNew.isUndefinedOrNull(individual.father) ||
+                                                        (UtilsNew.isNotUndefinedOrNull(individual.father) && UtilsNew.isUndefinedOrNull(individual.father.id)) ||
+                                                        individual.father.id <= 0)
+                                                        &&
+                                                        (UtilsNew.isUndefinedOrNull(individual.mother) ||
+                                                        UtilsNew.isNotUndefinedOrNull(individual.mother) && UtilsNew.isUndefinedOrNull(individual.mother.id) || individual.mother.id <= 0))) {
+                                                        const individualPost = {};
+                                                        if (!!individualToUpdate.mother)    individualPost.mother = individualToUpdate.mother;
+                                                        if (!!individualToUpdate.father)    individualPost.father = individualToUpdate.father;
+                                                        if (!!individualToUpdate.lifeStatus)    individualPost.lifeStatus = individualToUpdate.lifeStatus;
+                                                        if (!!individualToUpdate.parentalConsanguinity)    individualPost.parentalConsanguinity = individualToUpdate.parentalConsanguinity;
+                                                        if (!!individualToUpdate.phenotypes)    individualPost.phenotypes = individualToUpdate.phenotypes.slice();
+                                                        const individualPromise = _this.opencgaClient.individuals().update(individualId, params, individualPost, {"method": "POST"})
+                                                            .then(response => { console.log("Individual updated"); });
+                                                        individualPromises.push(individualPromise);
+                                                    } else {
+                                                        _this.messageError = true;
+                                                        _this.messageErrorText.push(analysisInfo.analysisID + " " + individualToUpdate.name + " individual already has parents.");
+                                                        // PolymerUtils.innerHTML(_this.prefix + "messageError", _this.messageErrorText);
+                                                    }
+                                                }
+                                            });
+                                        }
+
+                                        /*
                                         membersWithParents.forEach(function (individualToUpdate) {
                                             _this.opencgaClient.individuals().info(individualToUpdate.name, params, {"method": "GET"})
                                                 .then(function (response) {
@@ -722,6 +747,7 @@
                                                     }
                                                 });
                                         });
+                                        */
 
                                         Promise.all(individualPromises)
                                             .then(function (response) {

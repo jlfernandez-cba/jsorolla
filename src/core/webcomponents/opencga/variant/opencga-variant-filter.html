@@ -448,14 +448,14 @@
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
-                let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
-                if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
-                    let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
-                    this.consequenceTypes.lof.forEach((consType) => {
-                        checkBoxes.forEach((checkbox) => {
+                const lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
+                if (e.target.id === (this.prefix + "LossOfFunctionCheckBox")) {
+                    const checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
+                    this.consequenceTypes.lof.forEach(consType => {
+                        checkBoxes.forEach(checkbox => {
                             if (checkbox.getAttribute("data-id") === consType) {
                                 checkbox.checked = lofCheckBox.checked;
-                                return;
+                                // return;
                             }
                         });
                     });
