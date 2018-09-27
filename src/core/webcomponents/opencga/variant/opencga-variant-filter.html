@@ -174,7 +174,7 @@
                     },
                     family: {
                         type: Object,
-                        observer: "familyObserver"
+                        // observer: "familyObserver"
                     },
                     opencgaClient: {
                         type: Object
@@ -375,31 +375,6 @@
             //     }
             // }
 
-
-//             _autocompleteSampleSearch(e) {
-//                 // Only gene symbols are going to be searched and not Ensembl IDs
-//                 let sampleNamePrefix = PolymerUtils.getElementById(this.prefix  + "AutocompleteSampleSearchInput").value;
-//                 if (UtilsNew.isNotUndefinedOrNull(sampleNamePrefix) && sampleNamePrefix.length >= 4) {
-//                     let _this = this;
-//                     this.opencgaClient.samples()
-//                         .search({
-//                             study: _this.opencgaSession.project.alias + ":" + _this.opencgaSession.study.alias,
-//                             name: "~^" + sampleNamePrefix,
-//                             include: "id,name,source",
-//                             includeIndividual: true,
-//                             limit: 20}, {})
-//                         .then(function (response) {
-// //                            _this.autocompleteSampleData = response.response[0].result;
-//                             let options = "";
-//                             for (let sample of response.response[0].result) {
-//                                 let sampleStr = JSON.stringify(sample);
-//                                 options += `<option id="${_this.prefix}Sample${sample.name}" value="${sample.name}" data-sample='` + sampleStr + "'>";
-//                             }
-//                             PolymerUtils.innerHTML(_this.prefix + "AutocompleteSampleSearchDataList", options);
-//                         });
-//                 }
-//             }
-
             onSampleFilterClick() {
                 $("#" + this.prefix + "SampleFilterModal").modal("show");
             }
@@ -492,14 +467,14 @@
 
             updateConsequenceTypeFilter(e) {
                 // Select LoF term checkboxes
-                let lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
-                if (e.target.id === this.prefix + "LossOfFunctionCheckBox") {
-                    let checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
-                    this.consequenceTypes.lof.forEach((consType) => {
-                        checkBoxes.forEach((checkbox) => {
+                const lofCheckBox = PolymerUtils.getElementById(this.prefix + "LossOfFunctionCheckBox");
+                if (e.target.id === (this.prefix + "LossOfFunctionCheckBox")) {
+                    const checkBoxes = PolymerUtils.querySelectorAll("li input", this.prefix + "consequenceTypeFilter");
+                    this.consequenceTypes.lof.forEach(consType => {
+                        checkBoxes.forEach(checkbox => {
                             if (checkbox.getAttribute("data-id") === consType) {
                                 checkbox.checked = lofCheckBox.checked;
-                                return;
+                                // return;
                             }
                         });
                     });
@@ -2049,6 +2024,7 @@
                     }
                 }
 
+                // removed for 20180924 course
                 // Add events for Sample IDs
                 let elementById = PolymerUtils.getElementById(this.prefix + "SampleFilterModalButton");
                 if (UtilsNew.isNotUndefinedOrNull(elementById)) {
@@ -2060,7 +2036,6 @@
                 //     autoCompleteSampleElement.addEventListener('keyup', this._autocompleteSampleSearch.bind(this));
                 //     PolymerUtils.getElementById(this.prefix + "SampleAddButton").addEventListener('click', this.onSampleChange.bind(this));
                 // }
-
                 // Add event for inheritanceMode
                 // let inheritanceModeElement = PolymerUtils.getElementById(this.prefix + "SegregationOperator");
                 // if (UtilsNew.isNotUndefinedOrNull(inheritanceModeElement)) {
