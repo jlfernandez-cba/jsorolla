@@ -206,14 +206,26 @@ class OpenCGAClient {
                             .then(function (response) {
                                 session.projects = response.response[0].result;
                                 if (UtilsNew.isNotEmptyArray(session.projects) && UtilsNew.isNotEmptyArray(session.projects[0].studies)) {
+                                    // FIXME This is need to keep backward compatibility with OpenCGA 1.3.x
+                                    for (let project of session.projects) {
+                                        project.alias = project.alias || project.fqn || null;
+                                        if (project.studies !== undefined) {
+                                            for (let study of project.studies) {
+                                                // If study.alias does not exist we are NOT in version 1.3, we set fqn from 1.4
+                                                if (study.alias === undefined || study.alias === "") {
+                                                    if (study.fqn.includes(":")) {
+                                                        study.alias = study.fqn.split(":")[1];
+                                                    } else {
+                                                        study.alias = study.fqn;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     // this sets the current active project and study
                                     session.project = session.projects[0];
                                     session.study = session.projects[0].studies[0];
-
-                                    // FIXME This is need to kepp backward compatibility with OpenCGA 1.3.x
-                                    if (UtilsNew.isNotUndefinedOrNull(session.project.fqn)) {
-                                        session.project.alias = session.project.fqn;
-                                    }
                                 }
 
                                 resolve(session);
@@ -1047,6 +1059,10 @@ class Panels extends Acls {
 
     create(params, body, options) {
         return this.post("diseasePanels", undefined, "create", params, body, options);
+    }
+
+    search(params, options) {
+        return this.get("diseasePanels", undefined, "search", params, options);
     }
 
     info(id, params, options) {
