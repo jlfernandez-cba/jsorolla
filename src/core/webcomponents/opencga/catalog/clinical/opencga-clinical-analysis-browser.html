@@ -98,7 +98,7 @@
             }
 
             onClear() {
-                this.query = {studies: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
+                this.query = {study: this.opencgaSession.project.alias + ":" + this.opencgaSession.study.alias};
                 this.search = this.query;
             }
 

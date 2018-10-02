@@ -57,7 +57,8 @@
                     },
                     samples: {
                         type: Array,
-                        notify: true
+                        notify: true,
+                        observer: 'onSamplesChanged',
                     },
                     filters: {
                         type: Object,
@@ -75,6 +76,10 @@
                         type: Object
                     },
                 }
+            }
+
+            onSamplesChanged() {
+                console.log(">> opencga-sample-grid.onSamplesChanged()");
             }
 
             static get observers() {
@@ -186,14 +191,12 @@
                             }
                         },
                         onCheck: function (row, elem) {
-                            if (!_this.samples.find(sample => (sample.name === row.name))) {
-                                const newSamples = _this.samples.slice();
-                                newSamples.push(row);
-                                _this.set('samples', newSamples);
+                            if (!_this.samples.find(sample => (sample.id === row.id))) {
+                                _this.set('samples', [..._this.samples, row]);
                             }
                         },
                         onUncheck: function (row, elem) {
-                            const sampleToDeleteIdx = _this.samples.findIndex(sample => (sample.name === row.name));
+                            const sampleToDeleteIdx = _this.samples.findIndex(sample => (sample.id === row.id));
                             if (-1 != sampleToDeleteIdx) {
                                 const newSamples = _this.samples.slice();
                                 newSamples.splice(sampleToDeleteIdx, 1);
@@ -203,7 +206,7 @@
                         onCheckAll: function (rows) {
                             const newSamples = _this.samples.slice();
                             rows.forEach(row => {
-                                if (!_this.samples.some(sample => row.name === sample.name)) {
+                                if (!_this.samples.some(sample => row.id === sample.id)) {
                                     newSamples.push(row);
                                 }
                             });
@@ -212,20 +215,18 @@
                             }
                         },
                         onUncheckAll: function (rows) {
-                            const newSamples = _this.samples.filter(sample => (!rows.some(row => (row.name === sample.name))));
+                            const newSamples = _this.samples.filter(sample => (!rows.some(row => (row.id === sample.id))));
                             if (newSamples.length !== _this.samples.length) {
                                 _this.set('samples', newSamples);
                             }
                         },
                         onLoadSuccess: function (data) {
                             // Check all already selected rows. Selected samples are stored in this.samples array
-                            if (_this.samples !== "undefined") {
-                                for (let idx in _this.samples) {
-                                    for (let j in data.rows) {
-                                        if (_this.samples[idx].id === data.rows[j].id) {
-                                            $(PolymerUtils.getElementById(_this.prefix + 'SampleSelector')).bootstrapTable('check', j);
-                                            break;
-                                        }
+                            if (!!_this.samples) {
+                                for (let idx=0; idx<data.rows.length; ++idx) {
+                                    const selected = _this.samples.some(sample => sample.id === data.rows[idx].id);
+                                    if (selected) {
+                                        $(document.getElementById(`${_this.prefix}SampleSelector`)).bootstrapTable('check', idx);
                                     }
                                 }
                             }
@@ -331,6 +332,8 @@
                 this.filters = filters;
             }
 
+            // TODO: does someone call this function? If not, remove
+            /*
             onSearch() {
                 // Convert the filters to an objectParam that can be directly send to the sample search
                 let filterParams = {};
@@ -369,12 +372,13 @@
 
                 this.search = filterParams;
             }
+            */
 
 
             stateFormatter(value, row, index) {
                 if (typeof this.field.context.samples != "undefined") {
                     for (let idx in this.field.context.samples) {
-                        if (this.field.context.samples[idx].name == row.name) {
+                        if (this.field.context.samples[idx].id == row.id) {
                             break;
                         }
                     }

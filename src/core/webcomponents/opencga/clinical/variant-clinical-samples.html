@@ -162,6 +162,9 @@
         class VariantClinicalSamples extends Polymer.Element {
 
             onSamplesChanged(newValue, oldValue) {
+                console.log(">> variant-clinical-samples.onSamplesChanged()");
+                console.dir(newValue);
+                console.dir(oldValue);
                 // debugger;
                 // TODO
             }
